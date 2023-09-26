@@ -1,0 +1,52 @@
+.container {
+  height: 600px;
+  width: 340px;
+  border-radius: 20px;
+  background-color: white;
+  position: absolute;
+  top: -300px; //TODO: find a MUCH better way to do this
+  left: -170px; //TODO: find a MUCH better way to do this
+}
+.price{
+  font-family: Marker Felt;
+  color: white;
+  font-size: 25px;
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+}
+.title{
+  font-family: Marker Felt;
+  color: white;
+  font-size: 25px;
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+}
+.backgroundImageContainer{
+  height: 100%;
+  width: 100%;
+}
+.backgroundImage{
+  border-radius: 20px;
+}
+
+
+.blurWrap {
+  height: 70px;//Here we need to specify the height of blurred part
+  overflow: hidden;
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+}
+.imageStyle { 
+  height: 100%;
+  width: 100%;
+}
+.blurImageStyle {
+  height: 600px;
+  width: 340px;
+  position: absolute;
+  bottom: 0;
+  justify-content: flex-end;
+}
