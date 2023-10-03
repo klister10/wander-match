@@ -61,7 +61,7 @@ const pollFlightRequest = async (sessionToken) => {
 
 const awaitFinalFlightResponse = async (sessionToken) => {
   const pollResponse = await pollFlightRequest(sessionToken);
-  console.log("got pollResponse: ", pollResponse);
+  //console.log("got pollResponse: ", pollResponse);
   if(pollResponse.status && pollResponse.status == "RESULT_STATUS_COMPLETE"){
     return pollResponse;
   } else {
@@ -72,17 +72,17 @@ const awaitFinalFlightResponse = async (sessionToken) => {
 // TODO switch to using this for live prices
 export const getLowestLivePriceForRoute = async (origin, destination, date) => { //TODO: figure out how to make this round trip. Do I just add a second leg?
   const createResponse = await createFlightRequest(origin, destination, date);
-  console.log("createResponse: ", createResponse);
+  //console.log("createResponse: ", createResponse);
   const sessionToken = createResponse.sessionToken;
-  console.log("sessionToken: ", sessionToken);
+  //console.log("sessionToken: ", sessionToken);
 
   let finalFlightResponse;
 
   if(sessionToken){ 
     finalFlightResponse = await awaitFinalFlightResponse(sessionToken);
-    console.log("got finalFlightResponse: ", finalFlightResponse);
+    //console.log("got finalFlightResponse: ", finalFlightResponse);
   } else {
-    console.log("session id was null so we're using createResponse instead of finalFlightResponse")
+    //console.log("session id was null so we're using createResponse instead of finalFlightResponse")
   }
 
   return finalFlightResponse || createResponse; //TODO: pull prices from json
@@ -122,7 +122,7 @@ export const getLowestIndicativePriceForRoute = async (origin, destination, date
       }),
     });
     const json = await response.json();
-    console.log("got lowest indicative price response: ", json);
+    //console.log("got lowest indicative price response: ", json);
     return json;
   } catch (error) {
     console.error(error);
@@ -144,8 +144,8 @@ async function getCityPricesFromAPIResponse(response){
   const quotesGroups = response.content.groupingOptions.byRoute.quotesGroups;
   const quotes = response.content.results.quotes;
 
-  console.log("quotesGroups: ", quotesGroups);
-  console.log("quotes: ", quotes);
+  //console.log("quotesGroups: ", quotesGroups);
+  //console.log("quotes: ", quotes);
 
   const citiesWithPrices = await Promise.all(quotesGroups.map(async (group) => {
     const quoteId = group.quoteIds[0]; //TODO null check this and also choose the cheapest in the rare case that theres more than one
@@ -154,7 +154,7 @@ async function getCityPricesFromAPIResponse(response){
     cityInfo.placeId = group.destinationPlaceId; //TODO convert this into a city name instead
     cityInfo.price = quote.minPrice.amount; //TODO null check this and also choose the cheapest in the rare case that theres more than one
     const airportCode = quoteId.match(/[A-Z]{3}/g)[1];
-    console.log("airportCode: ", airportCode);
+    //console.log("airportCode: ", airportCode);
     const cityName = await getCityNameByAirportCode(airportCode);
     cityInfo.title = cityName;
     const photoURI = await getGooglePhotoURIByCityName(cityName);
@@ -162,11 +162,11 @@ async function getCityPricesFromAPIResponse(response){
 
     return cityInfo;
   }));
-  console.log("citiesWithPrices: ", citiesWithPrices);
+  //console.log("citiesWithPrices: ", citiesWithPrices);
   return citiesWithPrices;
 }
 
-export const getDestinationsWithPrices = async (origin, destination, date) => { //date ignored for now
+export const getDestinationsWithPrices = async (origin, date) => { //date ignored for now
   try {
     const response = await fetch('https://partners.api.skyscanner.net/apiservices/v3/flights/indicative/search', {
       method: 'POST',
@@ -208,7 +208,7 @@ export const getDestinationsWithPrices = async (origin, destination, date) => { 
       }),
     });
     const json = await response.json();
-    console.log("got destination with price response: ", json);
+    //console.log("got destination with price response: ", json);
     const cityPricesFromAPIResponse = await getCityPricesFromAPIResponse(json);
     return cityPricesFromAPIResponse;
   } catch (error) {
@@ -231,7 +231,7 @@ const getCityByAirportCode = async (airportCode) => {
       cityObj = suggestedCity;
     }
   });
-  console.log("found matching city for ", airportCode, ": ", cityObj);
+  //console.log("found matching city for ", airportCode, ": ", cityObj);
   return cityObj;
 }
 
@@ -254,8 +254,34 @@ const getCitySuggestionsByAirportCode = async (airportCode) => { //date ignored 
       }),
     });
     const json = await response.json();
-    console.log("got response from autosuggest: ", json);
+    //console.log("got response from autosuggest: ", json);
     return json;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+
+export const getAutocompleteAirportSuggestions = async (searchTerm) => { //date ignored for now
+  try {
+    const response = await fetch('https://partners.api.skyscanner.net/apiservices/v3/autosuggest/flights', {
+      method: 'POST',
+      headers: {
+        'x-api-key': 'sh428739766321522266746152871799', //TODO: replace with real API key, this is the public one https://developers.skyscanner.net/docs/getting-started/authentication
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: {
+          market: 'US',
+          locale: 'en-US',
+          searchTerm: searchTerm,
+          includedEntityTypes: ['PLACE_TYPE_AIRPORT'], //TODO: consider adding city as a place type. if so, change the dropdown to not expect iata codes and make sure this works as an input to the flight search
+        },
+        limit: 5,
+      }),
+    });
+    const json = await response.json();
+    return json.places; //TODO: null check
   } catch (error) {
     console.error(error);
   }
@@ -294,7 +320,7 @@ const getGooglePlacePredictionByCityName = async (cityName) => { //date ignored 
       method: 'POST',
     });
     const json = await response.json();
-    console.log("got google place predictions: ", json);
+    //console.log("got google place predictions: ", json);
     return json.predictions[0]; //TODO: for now, just assume the first one is right. it might not be. fix this
   } catch (error) {
     console.error(error);
@@ -311,7 +337,7 @@ const getGooglePlaceById = async (placeId) => {
       method: 'POST',
     });
     const json = await response.json();
-    console.log("got google place by id: ", json);
+    //console.log("got google place by id: ", json);
     return json; //TODO: for now, just assume the first one is right. it might not be. fix this
   } catch (error) {
     console.error(error);
@@ -352,16 +378,16 @@ const filterPhotoArray = (photoArray) => {
 const getGooglePhotoURIByCityName = async (cityName) => {
   let photo = null;
   const predictedPlace = await getGooglePlacePredictionByCityName(cityName);
-  console.log("got predictedPlace for ", cityName, ": ", predictedPlace);
+  //console.log("got predictedPlace for ", cityName, ": ", predictedPlace);
   if(predictedPlace && predictedPlace.place_id) {
     const googlePlaceObj = await getGooglePlaceById(predictedPlace.place_id);
-    console.log("got googlePlaceObj for ", cityName, ": ", googlePlaceObj);
+    //console.log("got googlePlaceObj for ", cityName, ": ", googlePlaceObj);
     const filteredPhotoArray = filterPhotoArray(googlePlaceObj.result.photos);
-    console.log("filteredPhotoArray for ", cityName, ": ", filteredPhotoArray);
-    console.log("photoreference: ", filteredPhotoArray[0].photo_reference);
+    //console.log("filteredPhotoArray for ", cityName, ": ", filteredPhotoArray);
+    //console.log("photoreference: ", filteredPhotoArray[0].photo_reference);
     if(googlePlaceObj && googlePlaceObj.result && googlePlaceObj.result.photos && googlePlaceObj.result.photos[0] && googlePlaceObj.result.photos[0].photo_reference){
       const photoURI = constructGooglePhotoURI(googlePlaceObj.result.photos[0].photo_reference);
-      console.log("constructed google photo URI for ", cityName, ": ", photoURI);
+      //console.log("constructed google photo URI for ", cityName, ": ", photoURI);
       return photoURI;
     }
   }

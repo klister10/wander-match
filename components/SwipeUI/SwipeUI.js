@@ -19,17 +19,18 @@ let destinationCards = [ //TODO: replace this with real data. meantime move this
 const defaultImageURL = 'https://lh3.googleusercontent.com/places/ANXAkqFLgHGB86IZNGj_6sT26shFPxNm1anQm1aXwQ-T4F7judZtDMvZZR7yrm7TZouaVJHOK5MTcltzQIYX2N1PkRY6d2Z7gIQKRg=s1600-w400';
 
 export default function SwipeUI ({navigation, route})  {
+  const selectedAirportCode =  route.params.selectedAirport.iataCode;
   const [cardIndex, setCardIndex] = useState(0);
   const [loading, setLoading] = useState(true);
 
   //did mount
   useEffect(() => {
     //TODO: write error handling
-    getDestinationsWithPrices('SDF', 'MDE', {"year": 2023, "month": 10, "day": 14}).then((response) => {
-      console.log("received response in SwipeUI (abbreviated): ", response.slice(0, 5));
-      console.log("defaults to compare: ", destinationCards);
+    getDestinationsWithPrices(selectedAirportCode, {"year": 2023, "month": 10, "day": 14}).then((response) => {
+      //console.log("received response in SwipeUI (abbreviated): ", response.slice(0, 5));
+      //console.log("defaults to compare: ", destinationCards);
       destinationCards = response.slice(0, 10); //TODO: this is because of performance limitations. figure out how to load them 2 at a time or something to avoid this. also make sure to implement the suggestion to kill the card once its off the screen
-      setLoading(false); //TODO: write a loading state
+      setLoading(false); //TODO: write a better UI for the loading state
     });
   }, []);
 
