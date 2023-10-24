@@ -19,7 +19,7 @@ function DefaultTextInput(props) {
 }
 function AutocompleteInputComponent(props, ref) {
     const { data, containerStyle, labelExtractor, hideResults, onItemSelected, placeholder, onTextInputFocus, onTextInputBlur, inputContainerStyle, listContainerStyle, onShowResults, onStartShouldSetResponderCapture = () => false, } = props;
-    const isOpen = data.length > 0 && !hideResults;        
+    const isOpen = data && data.length > 0 && !hideResults;        
     const textInputStyle = isOpen ? AutoCompleteStyle.textInputOpen : AutoCompleteStyle.textInputClosed;
     const defaultRenderItems = ({ item }) => {
         //console.log("in defaultRenderItems. item: ", item);
@@ -71,7 +71,7 @@ function AutocompleteInputComponent(props, ref) {
         };
         return renderFunction?.(textProps);
     }
-    const showResults = data.length > 0;
+    const showResults = data && data.length > 0;
     onShowResults && onShowResults(showResults);
     const defaultContainerStyle = isOpen ? AutoCompleteStyle.containerOpen : AutoCompleteStyle.containerClosed;
     //TODO: consider a different solution for textInputStyle in case we want to distinguish between the item and its container

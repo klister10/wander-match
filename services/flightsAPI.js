@@ -139,7 +139,7 @@ async function getCityPricesFromAPIResponse(response){
     || !(response && response.content && response.content.results
       && response.content.results.quotes)
   ){
-    return {};
+    return [];
   }
   const quotesGroups = response.content.groupingOptions.byRoute.quotesGroups;
   const quotes = response.content.results.quotes;
@@ -166,7 +166,8 @@ async function getCityPricesFromAPIResponse(response){
   return citiesWithPrices;
 }
 
-export const getDestinationsWithPrices = async (origin, date) => { //date ignored for now
+export const getDestinationsWithPrices = async (origin, departureDate, returnDate, anytime=false) => {
+  console.log("in getDestinationsWithPrices. anytime: ", anytime);
   try {
     const response = await fetch('https://partners.api.skyscanner.net/apiservices/v3/flights/indicative/search', {
       method: 'POST',
@@ -188,7 +189,12 @@ export const getDestinationsWithPrices = async (origin, date) => { //date ignore
               destinationPlace: {
                 anywhere: true
               },
-              anytime: true
+              fixedDate: anytime ? null : departureDate,
+              anytime: anytime, //TODO: re-enable this when we add an anytime toggle to the start screen
+              /*"dateRange": {
+                "startDate": departureDate,
+                "endDate": returnDate,
+              },*/
             }, 
             { //this is an attempt to make it round trip. Figure out if this is right
               originPlace: {
@@ -199,8 +205,13 @@ export const getDestinationsWithPrices = async (origin, date) => { //date ignore
                   iata: origin
                 }
               },
-              anytime: true
-            }
+              fixedDate: anytime ? null : returnDate,
+              anytime: anytime, //TODO: re-enable this when we add an anytime toggle to the start screen
+              /*"dateRange": {
+                "startDate": departureDate,
+                "endDate": returnDate,
+              }*/
+            },
           ],
           adults: 1,
           cabinClass: "CABIN_CLASS_ECONOMY",
@@ -208,8 +219,14 @@ export const getDestinationsWithPrices = async (origin, date) => { //date ignore
       }),
     });
     const json = await response.json();
-    //console.log("got destination with price response: ", json);
-    const cityPricesFromAPIResponse = await getCityPricesFromAPIResponse(json);
+    let cityPricesFromAPIResponse = await getCityPricesFromAPIResponse(json);
+
+    // if we don't have enough data using the specific date range, fill it out with "anytime" data. 
+    // TODO: design something so that this is not confusing to the user
+    if(!anytime && cityPricesFromAPIResponse.length < 10){
+      const backupCityPrices = await getDestinationsWithPrices(origin, departureDate, returnDate, true);
+      cityPricesFromAPIResponse = cityPricesFromAPIResponse.concat(backupCityPrices);
+    }
     return cityPricesFromAPIResponse;
   } catch (error) {
     console.error(error);
@@ -382,10 +399,10 @@ const getGooglePhotoURIByCityName = async (cityName) => {
   if(predictedPlace && predictedPlace.place_id) {
     const googlePlaceObj = await getGooglePlaceById(predictedPlace.place_id);
     //console.log("got googlePlaceObj for ", cityName, ": ", googlePlaceObj);
-    const filteredPhotoArray = filterPhotoArray(googlePlaceObj.result.photos);
-    //console.log("filteredPhotoArray for ", cityName, ": ", filteredPhotoArray);
-    //console.log("photoreference: ", filteredPhotoArray[0].photo_reference);
     if(googlePlaceObj && googlePlaceObj.result && googlePlaceObj.result.photos && googlePlaceObj.result.photos[0] && googlePlaceObj.result.photos[0].photo_reference){
+      const filteredPhotoArray = filterPhotoArray(googlePlaceObj.result.photos);
+      //console.log("filteredPhotoArray for ", cityName, ": ", filteredPhotoArray);
+      //console.log("photoreference: ", filteredPhotoArray[0].photo_reference);
       const photoURI = constructGooglePhotoURI(googlePlaceObj.result.photos[0].photo_reference);
       //console.log("constructed google photo URI for ", cityName, ": ", photoURI);
       return photoURI;
