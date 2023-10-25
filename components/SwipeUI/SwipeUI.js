@@ -82,6 +82,9 @@ export default function SwipeUI ({navigation, route})  {
     //TODO: navigat to a new screen that shows the saved trips
     navigation.navigate('SavedTrips', { 
       savedTrips: savedCards,
+      selectedDepartureDate,
+      selectedReturnDate,
+      selectedAirportCode,
     });
   }
 

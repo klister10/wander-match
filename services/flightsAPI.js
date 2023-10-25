@@ -165,14 +165,18 @@ async function getCityPricesFromAPIResponse(response){
   const citiesWithPrices = await Promise.all(quotesGroups.map(async (group) => {
     const quoteId = group.quoteIds[0]; //TODO null check this and also choose the cheapest in the rare case that theres more than one
     const quote = quotes[quoteId];
+    console.log("quote: ", quote);
     let cityInfo = {};
     cityInfo.placeId = group.destinationPlaceId; //TODO convert this into a city name instead
     cityInfo.price = quote.minPrice.amount; //TODO null check this and also choose the cheapest in the rare case that theres more than one
-    const airportCode = quoteId.match(/[A-Z]{3}/g)[1];
+    const airportCode = quoteId.match(/[A-Z]{3}/g)[1]; //TODO: find a more robust way to get the airport code
     //console.log("airportCode: ", airportCode);
     const cityName = await getCityNameByAirportCode(airportCode);
     cityInfo.cityName = cityName;
     cityInfo.title = getTitleText(cityName);
+    cityInfo.iataCode = airportCode;
+    cityInfo.departureDate = quote.inboundLeg.departureDateTime;
+    cityInfo.returnDate = quote.outboundLeg.departureDateTime;
     const photoURI = await getGooglePhotoURIByCityName(cityName);
     cityInfo.imgURL = photoURI;
 
