@@ -121,10 +121,10 @@ export default function StartScreen({navigation, route}) {
         />
 
         <Pressable 
-          style={StartScreenStyles.startButton}  //TODO: make this a shared component to make all buttons look the same
+          style={Appstyles.primaryButton}  //TODO: make this a shared component to make all buttons look the same
           onPress={onSubmit}                      //TODO: style this as disabled when the airport code hasn't been filled in
         > 
-          <Text style={StartScreenStyles.startButtonText}>{"Start Swiping!"}</Text>
+          <Text style={Appstyles.primaryButtonText}>{"Start Swiping!"}</Text>
         </Pressable>
       </View>
     </ImageBackground>

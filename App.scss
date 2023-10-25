@@ -11,9 +11,25 @@
 }
 
 
+//TODO: move this to a shareable component
+.primaryButton{
+  background-color: #87ceeb;
+  border-radius: 25px;
+  padding: 12px 30px;
+  //box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
+}
+
+.primaryButtonText{
+  color: #5A5A5A;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+
 /****
 * COLOR SCHEME
 * base: #D9F0F9
 * main: #87CEEB
 * accent: #EBA487
+* background: #f0a6c1
 ***/

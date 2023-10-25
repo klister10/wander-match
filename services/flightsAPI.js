@@ -129,6 +129,21 @@ export const getLowestIndicativePriceForRoute = async (origin, destination, date
   }
 };
 
+const getTitleText = (cityName) => {
+  let titleText = cityName;
+  // if the city name including the country is too long, just show the city (not the country)
+  if(titleText && titleText.length > 20){
+    titleText = titleText.split(",")[0];
+  } 
+
+  // if it's still too long after removing the country, truncate the string and add an elipsis
+  if(titleText && titleText.length > 20){
+    titleText = titleText.substring(0,17) + '...';
+  }
+
+  return titleText;
+}
+
 async function getCityPricesFromAPIResponse(response){
 
   //null check deeply nested response
@@ -156,7 +171,8 @@ async function getCityPricesFromAPIResponse(response){
     const airportCode = quoteId.match(/[A-Z]{3}/g)[1];
     //console.log("airportCode: ", airportCode);
     const cityName = await getCityNameByAirportCode(airportCode);
-    cityInfo.title = cityName;
+    cityInfo.cityName = cityName;
+    cityInfo.title = getTitleText(cityName);
     const photoURI = await getGooglePhotoURIByCityName(cityName);
     cityInfo.imgURL = photoURI;
 

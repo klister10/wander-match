@@ -1,10 +1,10 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import TinderCard from 'react-tinder-card';
-import { View, Text } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import Appstyles from '../../App.scss';
+import SwipeUIStyles from './SwipeUI.scss';
 import DestinationCard from './DestinationCard/DestinationCard';
 import { getDestinationsWithPrices } from '../../services/flightsAPI';
-import StartScreenStyles from '../StartScreen/StartScreen.scss'; //TODO: generalize this instead
 
 let destinationCards = [ //TODO: replace this with real data. meantime move this to a dummy data file
   {title: "Cusco, Peru", price: 1193, imgURL: 'https://d2rdhxfof4qmbb.cloudfront.net/wp-content/uploads/20180301163920/iStock-540409466-1024x586.jpg'},
@@ -27,7 +27,12 @@ export default function SwipeUI ({navigation, route})  {
   const selectedReturnDate = route.params.selectedReturnDate;  
   console.log("selectedAirportCode: ", selectedAirportCode);
   console.log("selectedDepartureDate in swipe ui: ", selectedDepartureDate); //TODO figure out why this is loading twice
-  const [cardIndex, setCardIndex] = useState(0);
+  
+  //TODO: figure out why I need refs to successfully increment this counter
+  //const initialCardIndex = 0;
+  //const [cardIndex, setCardIndex] = useState(initialCardIndex);
+  const cardIndexRef = useRef(0);
+
   const [loading, setLoading] = useState(true);
   const [doneSwiping, setDoneSwiping] = useState(false);
 
@@ -39,60 +44,66 @@ export default function SwipeUI ({navigation, route})  {
       destinationCards = response.slice(0, 10); //TODO: this is because of performance limitations. figure out how to load them 2 at a time or something to avoid this. also make sure to implement the suggestion to kill the card once its off the screen
       console.log("destinationCards: ", destinationCards);
       setLoading(false); //TODO: write a better UI for the loading state
+      cardIndexRef.current = destinationCards.length - 1; //we count down from the last card because the cards are displayed in reverse order
     });
   }, []);
 
   //const currentCard = destinationCards[cardIndex];
 
   const onSwipe = (direction) => {
+    console.log("in onSwipe. direction: ", direction, ", currentIndex: ", cardIndexRef.current);
     if(direction == "right"){
-      savedCards.push(destinationCards[cardIndex]);
+      console.log("because the direction was right, saving destination: ", destinationCards[cardIndexRef.current]);
+      savedCards.push(destinationCards[cardIndexRef.current]);
     }
-    if(cardIndex >= destinationCards.length){
+    console.log("cardIndex: ", cardIndexRef.current, ", destinationCards.length: ", destinationCards.length);
+    /*if(cardIndexRef.current >= destinationCards.length - 1){
+      setDoneSwiping(true);
+    }*/ //we're counting down now
+    if(cardIndexRef.current <= 0){
       setDoneSwiping(true);
     }
-    setCardIndex(cardIndex + 1); // TODO: figure out how to do this safely (rather than referencing current state like this)
+    incrementCardIndex(); // TODO: figure out how to do this safely (rather than referencing current state like this)
     console.log('You swiped: ' + direction)
   }
+
+  const incrementCardIndex = () => {
+    console.log("in incrementCardIndex");
+    //setCardIndex(cardIndexRef.current + 1);
+    cardIndexRef.current = cardIndexRef.current - 1; //counting down instead of up because cards are displayed in reverse order (they're a stack)
+  };
 
   const onCardLeftScreen = (myIdentifier) => {
     console.log(myIdentifier + ' left the screen')
   }
 
-  const getTitleText = (destination) => {
-    let titleText = destination.title;
-    // if the city name including the country is too long, just show the city (not the country)
-    if(titleText && titleText.length > 20){
-      titleText = titleText.split(",")[0];
-    } 
-
-    // if it's still too long after removing the country, truncate the string and add an elipsis
-    if(titleText && titleText.length > 20){
-      titleText = titleText.substring(0,17) + '...';
-    }
-
-    return titleText;
+  const onDoneSwiping = () => {
+    console.log("done swiping!");
+    //TODO: navigat to a new screen that shows the saved trips
+    navigation.navigate('SavedTrips', { 
+      savedTrips: savedCards,
+    });
   }
 
   //TODO: split the city name somewhere else
   return (
-    <View style={Appstyles.container}>
+    <View style={[Appstyles.container, SwipeUIStyles.container]}>
       {!loading && !doneSwiping && destinationCards.map((destination, index) => (
         <TinderCard 
-          key={getTitleText(destination)}
+          key={destination.title}
           onSwipe={onSwipe} 
           onCardLeftScreen={() => onCardLeftScreen('fooBar')} 
           preventSwipe={['down', 'up']}
         >
-          <DestinationCard price={destination.price} title={getTitleText(destination)} imgURL={destination.imgURL || defaultImageURL} />
+          <DestinationCard price={destination.price} title={destination.title} imgURL={destination.imgURL || defaultImageURL} />
         </TinderCard>
       ))}
       {doneSwiping &&
         <Pressable 
-          style={StartScreenStyles.doneSwipingButton}  //TODO: make this a shared component to make all buttons look the same
+          style={Appstyles.primaryButton}  //TODO: make this a shared component to make all buttons look the same
           onPress={onDoneSwiping}                      //TODO: style this as disabled when the airport code hasn't been filled in
         > 
-          <Text style={StartScreenStyles.startButtonText}>{"See my Saved Trips"}</Text>
+          <Text style={Appstyles.primaryButtonText}>{"See my Saved Trips"}</Text>
         </Pressable> 
       }
     </View>
