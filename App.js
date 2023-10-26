@@ -9,7 +9,6 @@ import SavedTrips from './components/SavedTrips/SavedTrips';
 
 const Stack = createNativeStackNavigator();
 
-/*TODO figure out how to style at the App level*/
 export default function App() {
   return (
     <NavigationContainer style={Appstyles.container}>
@@ -29,7 +28,10 @@ export default function App() {
         <Stack.Screen 
           name="SavedTrips" 
           component={SavedTrips} 
-          options={{title: "", headerShown: false}}
+          options={{
+            title: "", 
+            headerTransparent: true,
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>

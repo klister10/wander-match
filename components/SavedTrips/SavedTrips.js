@@ -1,15 +1,26 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef, useLayoutEffect} from 'react';
 import { View, Text, ScrollView, Linking } from 'react-native';
 import Appstyles from '../../App.scss';
 import SavedTripsStyles from './SavedTrips.scss';
 import TripCard from './TripCard/TripCard';
+import { HeaderBackButton } from '@react-navigation/elements';
 
 export default function SavedTrips ({navigation, route})  {
+
   const savedTrips =  route.params.savedTrips;
   const selectedDepartureDate = route.params.selectedDepartureDate;
   const selectedReturnDate = route.params.selectedReturnDate;
   const selectedAirportCode = route.params.selectedAirportCode;
   console.log("savedTrips: ", savedTrips);
+
+  useLayoutEffect(() => { 
+    navigation.setOptions({ 
+      headerLeft:() => (<HeaderBackButton tintColor={'white'} onPress={()=>{navigation.navigate('Home')}}/>),
+      headerTintColor: 'white',
+    }) 
+  }, [])
+
+
 
   const formatDateForDeeplink = (date) => {
     return "" + date.year%100 +  date.month +  date.day;

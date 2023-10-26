@@ -40,9 +40,9 @@ export default function SwipeUI ({navigation, route})  {
   useEffect(() => {
     //TODO: write error handling
     getDestinationsWithPrices(selectedAirportCode, selectedDepartureDate, selectedReturnDate).then((response) => {
-      console.log("pre-sliced response: ", response);
+      //console.log("pre-sliced response: ", response);
       destinationCards = response.slice(0, 10); //TODO: this is because of performance limitations. figure out how to load them 2 at a time or something to avoid this. also make sure to implement the suggestion to kill the card once its off the screen
-      console.log("destinationCards: ", destinationCards);
+      //console.log("destinationCards: ", destinationCards);
       setLoading(false); //TODO: write a better UI for the loading state
       cardIndexRef.current = destinationCards.length - 1; //we count down from the last card because the cards are displayed in reverse order
     });

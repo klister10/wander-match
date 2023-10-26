@@ -165,7 +165,7 @@ async function getCityPricesFromAPIResponse(response){
   const citiesWithPrices = await Promise.all(quotesGroups.map(async (group) => {
     const quoteId = group.quoteIds[0]; //TODO null check this and also choose the cheapest in the rare case that theres more than one
     const quote = quotes[quoteId];
-    console.log("quote: ", quote);
+    //console.log("quote: ", quote);
     let cityInfo = {};
     cityInfo.placeId = group.destinationPlaceId; //TODO convert this into a city name instead
     cityInfo.price = quote.minPrice.amount; //TODO null check this and also choose the cheapest in the rare case that theres more than one
