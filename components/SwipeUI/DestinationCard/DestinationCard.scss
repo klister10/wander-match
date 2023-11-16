@@ -1,11 +1,11 @@
 .container {
-  height: 600px;
+  height: 600px; //TODO: consider using percentages for height, width, top, and left
   width: 340px;
   border-radius: 20px;
   background-color: white;
   position: absolute;
-  top: -300px; //TODO: find a MUCH better way to do this
-  left: -170px; //TODO: find a MUCH better way to do this
+  top: -300px; //NOTE: this works because of the fixed height. the top left corner of the element starts in the middle of the screen with position absolute 
+  left: -170px; //NOTE: this works because of the fixed width. the top left corner of the element starts in the middle of the screen with position absolute 
 }
 .price{
   font-family: Marker Felt;

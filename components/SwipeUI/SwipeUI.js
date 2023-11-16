@@ -35,6 +35,7 @@ export default function SwipeUI ({navigation, route})  {
 
   const [loading, setLoading] = useState(true);
   const [doneSwiping, setDoneSwiping] = useState(false);
+  const [currentlyRenderedCards, setCurrentlyRenderedCards] = useState([]); //TODO: use this instead of `destinationCards` in the render method. Remove cards from it when they leave the screen. Add cards to it to keep swiping after exhausting the 10, or progressively to keep swiping infinitely
 
   //did mount
   useEffect(() => {
@@ -75,6 +76,7 @@ export default function SwipeUI ({navigation, route})  {
 
   const onCardLeftScreen = (myIdentifier) => {
     console.log(myIdentifier + ' left the screen')
+    //TODO: remove tindercard here
   }
 
   const onDoneSwiping = () => {
